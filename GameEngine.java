@@ -25,10 +25,9 @@ public class GameEngine {
         Room library = new Room("Library", false);
         Room lab = new Room("Laboratory", false, "LabKey"); // Requires LabKey
         Room storage = new Room("Storage", false);
-        Room exitRoom = new Room("Exit", true);
-        storage.setRequiredLight("Flashlight");
+        Room exitRoom = new Room("ExitRoom", true);
 
-        // Connect rooms (bidirectional or as desired)
+        // Connect rooms 
         lobby.addConnectedRoom(library);  
         lobby.addConnectedRoom(storage);  
         library.addConnectedRoom(lab);    
@@ -36,26 +35,17 @@ public class GameEngine {
 
         // Add items
         lobby.addContent(new Item("Flashlight", 10, "TOOL", "A sturdy LED flashlight."));
-        storage.addContent(new Item("LabKey", 50, "KEY", "The page is dog-eared at a riddle section. It reads: 'The most common keys are Q, W, E, R, T, and Y.'"));
-        library.addContent(new Item("OldBook", 5, "CLUE", "A heavy brass key labeled 'LAB'."));
-        lab.addContent(new Item("ScrapPaper",1,"CLUE", "To Do: Change the safe password. '1234' is too easy to guess!"));
-
+        storage.addContent(new Item("OldBook", 5, "CLUE", "An interesting book'."));
+        Item labKey = new Item("LabKey", 100, "KEY", "A heavy brass key labeled 'LAB'.");
+        lab.addContent(new Item("ScrapPaper",1,"CLUE", "password '1234' is too easy to guess!"));
+        lab.addContent(new CodePuzzle("SafeLock",3,null,"1234",5));
         // Add puzzles
-        library.addContent(new RiddlePuzzle(
-                "SphinxRiddle",
-                2,
-                "Hint: Check the storage for keys",
-                "What has keys but no locks, space but no room, and you can enter but can't go inside?",
-                "keyboard"
-        ));
-        lab.addContent(new CodePuzzle(
-                "SafeLock",
-                3,
-                "ExitUnlocked",
-                "1234",
-                5
-        ));
-
+        library.addContent(new RiddlePuzzle("SphinxRiddle",2,labKey,
+                "What has keys but no locks, space but no room, and you can enter but can't go inside?","keyboard"));
+        library.addContent(new RiddlePuzzle("EasyRiddle",1,null,
+                "What has no weight, no shape, but follows you wherever you go?",
+                "shadow"));
+        
         // Add rooms to map
         map.add(lobby);
         map.add(library);
@@ -68,7 +58,7 @@ public class GameEngine {
         this.player = new Player(startRoom);
 
         // Add some hints to the queue
-        hintQueue.add("Hint: Explore all rooms carefully!");
+        hintQueue.add("Hint: You need to vist all the room");
         hintQueue.add("Hint: Some doors need keys to unlock.");
         hintQueue.add("Hint: Solving puzzles may reveal useful information.");
     }
@@ -87,11 +77,9 @@ public class GameEngine {
         while (gameRunning) {
             System.out.print("\n> ");
             String input = scanner.nextLine().trim();
-
             if (input.isEmpty()) {
                 continue;
             }
-
             try {
                 processCommand(input);
                 turnCount++;
@@ -126,18 +114,6 @@ public class GameEngine {
 
         scanner.close();
         System.out.println("Thanks for playing!");
-    }
-    private boolean playerHasLight() {
-        String requiredLight = player.getCurrentRoom().getRequiredLight();
-        if (requiredLight == null) {
-            return true; // Room is not dark
-        }
-        for (Item item : player.getInventory()) {
-            if (item.getName().equalsIgnoreCase(requiredLight)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void processCommand(String cmd) throws InvalidCommandException, LockedRoomException, InvalidPuzzleAnswerException {
@@ -186,21 +162,12 @@ public class GameEngine {
     }
     private void handleLook() {
         Room currentRoom = player.getCurrentRoom();
-        if (!playerHasLight()) {
-            System.out.println("=== " + currentRoom.getName() + " ===");
-            System.out.println("It is pitch black! You can't see anything here.");
-            System.out.println("You need: " + currentRoom.getRequiredLight());
-        } else {
-            currentRoom.inspect();
-        }
+        currentRoom.inspect();
     }
 
     private void handleMove(String roomName) throws InvalidCommandException, LockedRoomException {
         if (roomName.isEmpty()) {
             throw new InvalidCommandException("Usage: move <roomName>");
-        }
-        if (!playerHasLight()) {
-            throw new InvalidCommandException("It's too dark to see where you're going! You need: " + player.getCurrentRoom().getRequiredLight());
         }
         Room targetRoom = player.getCurrentRoom().getConnectedRoom(roomName);
         if (targetRoom == null) {
@@ -214,18 +181,12 @@ public class GameEngine {
         if (itemName.isEmpty()) {
             throw new InvalidCommandException("Usage: pickup <itemName>");
         }
-        if (!playerHasLight()) {
-            throw new InvalidCommandException("It's too dark to find anything! You need: " + player.getCurrentRoom().getRequiredLight());
-        }
         player.pickUpItem(itemName);
     }
 
     private void handleSolve(String puzzleName) throws InvalidCommandException, InvalidPuzzleAnswerException {
         if (puzzleName.isEmpty()) {
             throw new InvalidCommandException("Usage: solve <puzzleName>");
-        }
-        if (!playerHasLight()) {
-            throw new InvalidCommandException("It's too dark to see any puzzles! You need: " + player.getCurrentRoom().getRequiredLight());
         }
         Puzzle puzzle = player.getCurrentRoom().findPuzzle(puzzleName);
         if (puzzle == null) {
@@ -238,8 +199,11 @@ public class GameEngine {
         String answer = scanner.nextLine().trim();
 
         if (puzzle.attemptSolve(answer)) {
-            System.out.println("\n*** REWARD: " + puzzle.getReward() + " ***");
-            hintQueue.add(puzzle.getReward());
+            Item reward = puzzle.getReward();
+            if (reward != null) {
+            player.addToInventory(reward); 
+            System.out.println("*** REWARD: " + reward.getName() + " added to inventory! ***");
+        }
         } else {
             System.out.println("That's not the correct answer. Try again!");
         }
@@ -249,19 +213,14 @@ public class GameEngine {
         if (targetName.isEmpty()) {
             throw new InvalidCommandException("Usage: inspect <itemName|puzzleName>");
         }
-        if (!playerHasLight()) {
-            throw new InvalidCommandException("It's too dark to see anything! You need: " + player.getCurrentRoom().getRequiredLight());
-        }
         for (GameComponent gc : player.getCurrentRoom().getContents()) {
             if (gc.getName().equalsIgnoreCase(targetName)) {
-                gc.inspect();
-                return;
+                gc.inspect();return;
             }
         }
         for (Item item : player.getInventory()) {
             if (item.getName().equalsIgnoreCase(targetName)) {
-                item.inspect();
-                return;
+                item.inspect();return;
             }
         }
         throw new InvalidCommandException("Nothing called '" + targetName + "' found in this room or your inventory.");

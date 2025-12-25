@@ -5,7 +5,6 @@ public class Room extends GameComponent {
     private ArrayList<Room> connectedRooms;
     private boolean isExit;
     private String requiredKey; // null if no key required
-    private String requiredLight;
 
     public Room(String name, boolean isExit) {
         super(name);
@@ -13,18 +12,11 @@ public class Room extends GameComponent {
         this.connectedRooms = new ArrayList<>();
         this.isExit = isExit;
         this.requiredKey = null;
-        this.requiredLight = null;
     }
 
     public Room(String name, boolean isExit, String requiredKey) {
         this(name, isExit);
         this.requiredKey = requiredKey;
-    }
-    public String getRequiredLight() {
-        return requiredLight;
-    }
-    public void setRequiredLight(String requiredLight) {
-        this.requiredLight = requiredLight;
     }
 
     @Override
@@ -33,22 +25,48 @@ public class Room extends GameComponent {
         if (isExit) {
             System.out.println("*** This is the EXIT! ***");
         }
+
+        ArrayList<Puzzle> puzzlesInRoom = new ArrayList<>();
+        for (GameComponent gc : contents) {
+            if (gc instanceof Puzzle) {
+                puzzlesInRoom.add((Puzzle) gc);
+            }
+        }
+        sortPuzzles(puzzlesInRoom);//sort by difficulty
         System.out.println("Contents:");
         if (contents.isEmpty()) {
             System.out.println("  (empty)");
         } else {
+            //print the sort by difficulty puzzle
+            for (Puzzle p : puzzlesInRoom)
+                System.out.println("  - "+p.getName()+" (Difficulty: " + p.getDifficulty() + ")");
+            //print the component not puzzle
             for (GameComponent gc : contents) {
-                System.out.println("  - " + gc.getName());
+                if (!(gc instanceof Puzzle)) {
+                    System.out.println("  - " + gc.getName());
+                }
             }
         }
         System.out.println("Connected rooms:");
         if (connectedRooms.isEmpty()) {
-            System.out.println("  (no exits)");
+            System.out.println("  (no connected room)");
         } else {
             for (Room r : connectedRooms) {
                 String lockInfo = r.requiredKey != null ? " [LOCKED - requires " + r.requiredKey + "]" : "";
                 System.out.println("  -> " + r.getName() + lockInfo);
             }
+        }
+    }
+
+    private void sortPuzzles(ArrayList<Puzzle> puzzles) {
+        for (int i = 1; i < puzzles.size(); i++) {
+            Puzzle key = puzzles.get(i);
+            int j = i - 1;
+            while (j >= 0 && puzzles.get(j).compareTo(key) > 0) {
+                puzzles.set(j + 1, puzzles.get(j));
+                j--;
+            }
+            puzzles.set(j + 1, key);
         }
     }
 

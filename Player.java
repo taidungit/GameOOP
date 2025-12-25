@@ -75,9 +75,7 @@ public class Player {
         }
     }
 
-    /**
-     * Insertion sort for ArrayList<Item> using Comparable
-     */
+     //Insertion sort for ArrayList<Item> using Comparable
     private void sortInventory() {
         for (int i = 1; i < inventory.size(); i++) {
             Item key = inventory.get(i);

@@ -2,7 +2,7 @@ public class RiddlePuzzle extends Puzzle {
     private String riddle;
     private String correctAnswer;
 
-    public RiddlePuzzle(String name, int difficulty, String reward, String riddle, String correctAnswer) {
+    public RiddlePuzzle(String name, int difficulty, Item reward, String riddle, String correctAnswer) {
         super(name, difficulty, reward);
         this.riddle = riddle;
         this.correctAnswer = correctAnswer.toLowerCase();

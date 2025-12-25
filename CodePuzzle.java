@@ -3,7 +3,7 @@ public class CodePuzzle extends Puzzle {
     private int maxAttempts;
     private int attempts;
 
-    public CodePuzzle(String name, int difficulty, String reward, String correctCode, int maxAttempts) {
+    public CodePuzzle(String name, int difficulty, Item reward, String correctCode, int maxAttempts) {
         super(name, difficulty, reward);
         this.correctCode = correctCode;
         this.maxAttempts = maxAttempts;

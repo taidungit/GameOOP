@@ -1,9 +1,9 @@
 public abstract class Puzzle extends GameComponent implements Comparable<Puzzle> {
     protected int difficulty;
     protected boolean solved;
-    protected String reward; // What solving this puzzle unlocks (item name or room name)
+    protected Item reward; // What solving this puzzle unlocks (item name or room name)
 
-    public Puzzle(String name, int difficulty, String reward) {
+    public Puzzle(String name, int difficulty, Item reward) {
         super(name);
         this.difficulty = difficulty;
         this.solved = false;
@@ -20,7 +20,7 @@ public abstract class Puzzle extends GameComponent implements Comparable<Puzzle>
         return difficulty;
     }
 
-    public String getReward() {
+    public Item getReward() {
         return reward;
     }
 

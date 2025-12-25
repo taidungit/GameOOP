@@ -53,20 +53,14 @@ public class Room extends GameComponent {
     }
 
 
-    public void exploreRecursive(int depth) {
-        String indent = "  ".repeat(depth);
-        System.out.println(indent + "Room: " + name + (isExit ? " [EXIT]" : ""));
-
-        // Print contents
-        for (GameComponent gc : contents) {
-            System.out.println(indent + "  - " + gc.getName() + " (" + gc.getClass().getSimpleName() + ")");
-        }
-
-        // Recurse into connected rooms
-        for (Room connected : connectedRooms) {
-            connected.exploreRecursive(depth + 1);
-        }
+public void exploreRecursive(int depth) {
+    String indent = (depth == 0) ? "" : "  ".repeat(depth) + " - ";
+    System.out.println(indent + name);
+    for (Room connected : connectedRooms) {
+        connected.exploreRecursive(depth + 1);
     }
+}
+
 
 
     public boolean containsItemRecursive(String itemName) {

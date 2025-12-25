@@ -29,13 +29,10 @@ public class GameEngine {
         storage.setRequiredLight("Flashlight");
 
         // Connect rooms (bidirectional or as desired)
-        lobby.addConnectedRoom(library);
-        lobby.addConnectedRoom(storage);
-        library.addConnectedRoom(lobby);
-        library.addConnectedRoom(lab);
-        lab.addConnectedRoom(library);
-        lab.addConnectedRoom(exitRoom);
-        storage.addConnectedRoom(lobby);
+        lobby.addConnectedRoom(library);  
+        lobby.addConnectedRoom(storage);  
+        library.addConnectedRoom(lab);    
+        lab.addConnectedRoom(exitRoom);   
 
         // Add items
         lobby.addContent(new Item("Flashlight", 10, "TOOL", "A sturdy LED flashlight."));
@@ -301,9 +298,4 @@ public class GameEngine {
         return player.getCurrentRoom().isExit();
     }
 
-    // Main method to run the game
-    public static void main(String[] args) {
-        GameEngine game = new GameEngine();
-        game.start();
-    }
 }

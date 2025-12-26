@@ -25,7 +25,7 @@ public class GameEngine {
         Room library = new Room("Library", false);
         Room lab = new Room("Laboratory", false, "LabKey"); // Requires LabKey
         Room storage = new Room("Storage", false);
-        Room exitRoom = new Room("ExitRoom", true);
+        Room exitRoom = new Room("ExitRoom", true,"ExitKey");
 
         // Connect rooms 
         lobby.addConnectedRoom(library);  
@@ -37,8 +37,9 @@ public class GameEngine {
         lobby.addContent(new Item("Flashlight", 10, "TOOL", "A sturdy LED flashlight."));
         storage.addContent(new Item("OldBook", 5, "CLUE", "An interesting book'."));
         Item labKey = new Item("LabKey", 100, "KEY", "A heavy brass key labeled 'LAB'.");
+        Item exitKey = new Item("ExitKey", 100, "KEY", "A key to open exit room.");
         lab.addContent(new Item("ScrapPaper",1,"CLUE", "password '1234' is too easy to guess!"));
-        lab.addContent(new CodePuzzle("SafeLock",3,null,"1234",5));
+        lab.addContent(new CodePuzzle("SafeLock",3,exitKey,"1234",5));
         // Add puzzles
         library.addContent(new RiddlePuzzle("SphinxRiddle",2,labKey,
                 "What has keys but no locks, space but no room, and you can enter but can't go inside?","keyboard"));

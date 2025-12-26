@@ -59,9 +59,12 @@ public class GameEngine {
         this.player = new Player(startRoom);
 
         // Add some hints to the queue
-        hintQueue.add("Hint: You need to vist all the room");
+        hintQueue.add("Hint: You should to visit all the room");
         hintQueue.add("Hint: Some doors need keys to unlock.");
         hintQueue.add("Hint: Solving puzzles may reveal useful information.");
+        hintQueue.add("Hint: The password for safe lock has 4 numbers");
+        hintQueue.add("Hint: Inspect the ScrapPaper can reveal the password");
+
     }
 
     public void start() {
